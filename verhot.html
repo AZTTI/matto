@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verhot – Hintalaskuri</title>
+  <style>
+    nav a { margin: 0 0.5rem; color: #007bff; text-decoration: none; }
+    nav a:hover { text-decoration: underline; }
+    body { font-family: sans-serif; margin: 2rem; background: #fdfdfd; }
+    h1 { color: #444; }
+    input, button { display: block; margin: 1rem 0; padding: 0.5rem; width: 100%; max-width: 400px; }
+    button { background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    .results { margin-top: 1.5rem; background: #f1f1f1; padding: 1rem; border-radius: 5px; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="index.html">Etusivu</a> |
+    <a href="matot.html">Matot</a> |
+    <a href="verhot.html">Verhot</a>
+  </nav>
+  <h1>Verhojen hintalaskuri</h1>
+
+  <label>Leveys (cm):
+    <input type="number" id="width" />
+  </label>
+
+  <label>Korkeus (cm):
+    <input type="number" id="height" />
+  </label>
+
+  <button onclick="calculateCurtainPrice()">Laske hinta</button>
+
+  <div class="results" id="result"></div>
+
+  <script>
+    const widths = [100, 150, 200, 250];
+    const heights = [200, 220, 240, 260];
+
+    const curtainPrices = {
+      "Perus": {200:{100:800,150:1200,200:1600,250:2000},220:{100:820,150:1220,200:1620,250:2020},240:{100:840,150:1240,200:1640,250:2040},260:{100:860,150:1260,200:1660,250:2060}},
+      "Tuplavoltit": {200:{100:900,150:1350,200:1800,250:2250},220:{100:920,150:1370,200:1820,250:2270},240:{100:940,150:1390,200:1840,250:2290},260:{100:960,150:1410,200:1860,250:2310}},
+      "Paljetit": {200:{100:850,150:1275,200:1700,250:2125},220:{100:870,150:1295,200:1720,250:2145},240:{100:890,150:1315,200:1740,250:2165},260:{100:910,150:1335,200:1760,250:2185}}
+    };
+
+    function nextOrSame(val, list) {
+      return list.find(x => x >= val);
+    }
+
+    function calculateCurtainPrice() {
+      const w = parseFloat(document.getElementById('width').value);
+      const h = parseFloat(document.getElementById('height').value);
+      const resultDiv = document.getElementById('result');
+
+      if (isNaN(w) || isNaN(h)) {
+        resultDiv.textContent = 'Virheellinen syöte';
+        return;
+      }
+
+      const matchedW = nextOrSame(w, widths);
+      const matchedH = nextOrSame(h, heights);
+
+      if (!matchedW || !matchedH) {
+        resultDiv.textContent = 'Sopivaa kokoa ei löytynyt taulukosta.';
+        return;
+      }
+
+      let output = `Valittu koko: ${matchedW} x ${matchedH} cm\n\n`;
+
+      for (const [style, table] of Object.entries(curtainPrices)) {
+        const price = table[matchedH]?.[matchedW];
+        output += `${style}: ${price ? '€' + price : 'Ei hintaa'}\n`;
+      }
+
+      resultDiv.textContent = output;
+    }
+  </script>
+</body>
+</html>

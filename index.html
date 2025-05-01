@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Woodnotes Hintalaskuri</title>
+  <style>
+    body { font-family: sans-serif; background: #f9f9f9; text-align: center; padding: 2rem; }
+    h1 { color: #c00; }
+    .menu { display: flex; flex-direction: column; align-items: center; gap: 1rem; margin-top: 2rem; }
+    button {
+      padding: 1rem 2rem;
+      font-size: 1.2rem;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 80%;
+      max-width: 300px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <h1>TARJOUS!</h1>
+  <p>Valitse tuoteryhmä:</p>
+  <div class="menu">
+    <button onclick="location.href='matot.html'">Matot</button>
+    <button onclick="location.href='verhot.html'">Verhot</button>
+    <button onclick="location.href='sangyt.html'">Sängyt</button>
+    <button onclick="location.href='muut.html'">Muut tuotteet</button>
+  </div>
+</body>
+</html>
