@@ -5,31 +5,40 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Hintalaskuri</title>
   <style>
-    body { font-family: Helvetica; background: #f9f9f9; text-align: center; padding: 2rem; }
-    h1 { color: #000000; }
+    body { font-family: sans-serif; margin: 2rem; background: #000000; color: #ffffff; text-align: center; }
+    h1 { color: #dddddd; }
     .menu { display: flex; flex-direction: column; align-items: center; gap: 1rem; margin-top: 2rem; }
-  button {
-            padding: 10px 40px;
-            font-size: 18px;
-            margin-top: -5px;
-            border: none;
-            cursor: pointer;
-            border-radius: 4px;
-            transition: background-color 0.3s ease;
-            
-        }
-    button:hover {
-      background: #f9f9f9;
+    button {
+      padding: 10px 40px;
+      font-size: 18px;
+      border: none;
+      cursor: pointer;
+      border-radius: 9px;
+      background-color: #ffffff;
+      color: #000000;
+      transition: background-color 0.3s ease;
     }
+    button:hover {
+      background-color: #dddddd;
+    }
+    nav a { margin: 0 0.5rem; color: #ffffff; text-decoration: none; }
+    nav a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
+  <nav>
+    <a href="index.html">Etusivu</a> |
+    <a href="matot.html">Matot</a> |
+    <a href="verhot.html">Verhot</a> |
+    <a href="sangyt.html">Sängyt</a> |
+    <a href="muut.html">Muut</a>
+  </nav>
   <h1>Hinnasto 2025</h1>
   <div class="menu">
     <button onclick="location.href='matot.html'">Matot</button>
     <button onclick="location.href='verhot.html'">Verhot</button>
     <button onclick="location.href='sangyt.html'">Sängyt</button>
-    <button onclick="location.href='muut.html'">Muut </button>
+    <button onclick="location.href='muut.html'">Muut</button>
   </div>
 </body>
 </html>
