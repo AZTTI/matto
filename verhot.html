@@ -5,13 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Verhot – Hintalaskuri</title>
   <style>
-    nav a { margin: 0 0.5rem; color: #007bff; text-decoration: none; }
+    nav a { margin: 0 0.5rem; color: #ffffff; text-decoration: none; }
     nav a:hover { text-decoration: underline; }
-    body { font-family: sans-serif; margin: 2rem; background: #fdfdfd; }
-    h1 { color: #444; }
-    input, button { display: block; margin: 1rem 0; padding: 0.5rem; width: 100%; max-width: 400px; }
-    button { background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
-    .results { margin-top: 1.5rem; background: #f1f1f1; padding: 1rem; border-radius: 5px; white-space: pre-wrap; }
+    body { font-family: sans-serif; margin: 2rem; background: #000000; color: #ffffff; }
+    h1 { color: #dddddd; }
+    input, button { display: block; margin: 1rem 0; padding: 0.5rem; width: 30%; max-width: 350px; border-radius: 9px; }
+    button { background-color: #ffffff; color: #000000; border: none; cursor: pointer; transition: background-color 0.3s ease; }
+    button:hover { background-color: #dddddd; }
+    .results { margin-top: 1.5rem; background: #222222; padding: 1rem; border-radius: 9px; white-space: pre-wrap; }
+    .price-tables { margin-top: 2rem; display: flex; flex-wrap: wrap; gap: 2rem; justify-content: center; }
+    .price-table { border-collapse: collapse; width: 100%; max-width: 300px; transform: scale(0.8); transform-origin: top left; }
+    .price-table th, .price-table td { border: 1px solid #ffffff; padding: 0.5rem; text-align: center; }
+    .price-table th { background: #333333; }
   </style>
 </head>
 <body>
@@ -33,6 +38,7 @@
   <button onclick="calculateCurtainPrice()">Laske hinta</button>
 
   <div class="results" id="result"></div>
+  <div class="price-tables" id="price-tables"></div>
 
   <script>
     const widths = [100, 150, 200, 250];
@@ -70,11 +76,52 @@
 
       for (const [style, table] of Object.entries(curtainPrices)) {
         const price = table[matchedH]?.[matchedW];
-        output += `${style}: ${price ? '€' + price : 'Ei hintaa'}\n`;
+        output += `${style}: ${price ? '€'+price : 'Ei hintaa'}\n`;
       }
 
       resultDiv.textContent = output;
     }
+
+    function generatePriceTables() {
+      const container = document.getElementById('price-tables');
+      container.innerHTML = '';
+      for (const [style, table] of Object.entries(curtainPrices)) {
+        const tbl = document.createElement('table');
+        tbl.className = 'price-table';
+
+        const caption = document.createElement('caption');
+        caption.textContent = style;
+        caption.style.marginBottom = '0.5rem';
+        caption.style.fontWeight = 'bold';
+        tbl.appendChild(caption);
+
+        const thead = document.createElement('thead');
+        const headRow = document.createElement('tr');
+        headRow.appendChild(document.createElement('th'));
+        widths.forEach(w => {
+          const th = document.createElement('th'); th.textContent = w; headRow.appendChild(th);
+        });
+        thead.appendChild(headRow);
+        tbl.appendChild(thead);
+
+        const tbody = document.createElement('tbody');
+        heights.forEach(hVal => {
+          const row = document.createElement('tr');
+          const lh = document.createElement('th'); lh.textContent = hVal; row.appendChild(lh);
+          widths.forEach(wVal => {
+            const td = document.createElement('td'); td.textContent = table[hVal]?.[wVal] || '-'; row.appendChild(td);
+          });
+          tbody.appendChild(row);
+        });
+        tbl.appendChild(tbody);
+
+        container.appendChild(tbl);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      generatePriceTables();
+    });
   </script>
 </body>
 </html>
