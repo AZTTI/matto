@@ -5,13 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Matot</title>
   <style>
-    nav a { margin: 0 0.5rem; color: #000000; text-decoration: none; }
+    nav a { margin: 0 0.5rem; color: #ffffff; text-decoration: none; }
     nav a:hover { text-decoration: underline; }
-    body { font-family: sans-serif; margin: 2rem; background: #fdfdfd; }
-    h1 { color: #4447; }
-    input, button { display: block; margin: 1rem 0; padding: 0.5rem; width: 30%;border-radius: 9px; max-width: 350px; }
-    button { background-color: #000000; color: white; border: none; border-radius: 9px; cursor: pointer; }
-    .results { margin-top: 1.5rem; background: #f1f1f1; padding: 1rem; border-radius: 9px; white-space: pre-wrap; }
+    body { font-family: sans-serif; margin: 2rem; background: #000000; color: #ffffff; }
+    h1 { color: #dddddd; }
+    input, button { display: block; margin: 1rem 0; padding: 0.5rem; width: 30%; border-radius: 9px; max-width: 350px; }
+    button { background-color: #ffffff; color: #000000; border: none; border-radius: 9px; cursor: pointer; }
+    .results { margin-top: 1.5rem; background: #222222; padding: 1rem; border-radius: 9px; white-space: pre-wrap; }
+    .price-tables { margin-top: 2rem; display: flex; flex-wrap: wrap; gap: 2rem; justify-content: center; }
+    .price-table { border-collapse: collapse; width: 100%; max-width: 300px; transform: scale(0.8); transform-origin: top left; }
+    .price-table th, .price-table td { border: 1px solid #ffffff; padding: 0.5rem; text-align: center; }
+    .price-table th { background: #333333; }
   </style>
 </head>
 <body>
@@ -34,14 +38,31 @@
 
   <div class="results" id="result"></div>
 
+  <div class="price-tables" id="price-tables"></div>
+
   <script>
     const widths = [60, 70, 80, 85, 90];
     const lengths = [140, 160, 180, 200];
 
     const rugPrices = {
-      "Ommeltu": {140: {60: 500,70:550,80:600,85:620,90:640},160:{60:520,70:570,80:620,85:640,90:660},180:{60:540,70:590,80:640,85:660,90:680},200:{60:560,70:610,80:660,85:680,90:700}},
-      "Hapsut": {140:{60:520,70:560,80:610,85:630,90:650},160:{60:540,70:580,80:630,85:650,90:670},180:{60:560,70:600,80:650,85:670,90:690},200:{60:580,70:620,80:670,85:690,90:710}},
-      "Leveä kanttaus": {140:{60:530,70:580,80:630,85:650,90:670},160:{60:550,70:600,80:650,85:670,90:690},180:{60:570,70:620,80:670,85:690,90:710},200:{60:590,70:640,80:690,85:710,90:730}}
+      "Ommeltu": {
+        140: {60: 500, 70: 550, 80: 600, 85: 620, 90: 640},
+        160: {60: 520, 70: 570, 80: 620, 85: 640, 90: 660},
+        180: {60: 540, 70: 590, 80: 640, 85: 660, 90: 680},
+        200: {60: 560, 70: 610, 80: 660, 85: 680, 90: 700}
+      },
+      "Hapsut": {
+        140: {60: 520, 70: 560, 80: 610, 85: 630, 90: 650},
+        160: {60: 540, 70: 580, 80: 630, 85: 650, 90: 670},
+        180: {60: 560, 70: 600, 80: 650, 85: 670, 90: 690},
+        200: {60: 580, 70: 620, 80: 670, 85: 690, 90: 710}
+      },
+      "Leveä kanttaus": {
+        140: {60: 530, 70: 580, 80: 630, 85: 650, 90: 670},
+        160: {60: 550, 70: 600, 80: 650, 85: 670, 90: 690},
+        180: {60: 570, 70: 620, 80: 670, 85: 690, 90: 710},
+        200: {60: 590, 70: 640, 80: 690, 85: 710, 90: 730}
+      }
     };
 
     function nextOrSame(val, list) {
@@ -75,6 +96,53 @@
 
       resultDiv.textContent = output;
     }
+
+    function generatePriceTables() {
+      const container = document.getElementById('price-tables');
+      container.innerHTML = '';
+      for (const [style, table] of Object.entries(rugPrices)) {
+        const tbl = document.createElement('table');
+        tbl.className = 'price-table';
+
+        const caption = document.createElement('caption');
+        caption.textContent = style;
+        caption.style.marginBottom = '0.5rem';
+        caption.style.fontWeight = 'bold';
+        tbl.appendChild(caption);
+
+        const thead = document.createElement('thead');
+        const headRow = document.createElement('tr');
+        headRow.appendChild(document.createElement('th'));
+        widths.forEach(w => {
+          const th = document.createElement('th');
+          th.textContent = w;
+          headRow.appendChild(th);
+        });
+        thead.appendChild(headRow);
+        tbl.appendChild(thead);
+
+        const tbody = document.createElement('tbody');
+        lengths.forEach(l => {
+          const row = document.createElement('tr');
+          const lh = document.createElement('th');
+          lh.textContent = l;
+          row.appendChild(lh);
+          widths.forEach(w => {
+            const td = document.createElement('td');
+            td.textContent = table[l]?.[w] || '-';
+            row.appendChild(td);
+          });
+          tbody.appendChild(row);
+        });
+        tbl.appendChild(tbody);
+
+        container.appendChild(tbl);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      generatePriceTables();
+    });
   </script>
 </body>
 </html>
