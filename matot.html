@@ -1,22 +1,32 @@
 <!DOCTYPE html>
 <html lang="fi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Matot – Hintalaskuri</title>
   <style>
     nav a { margin: 0 0.5rem; color: #ffffff; text-decoration: none; }
     nav a:hover { text-decoration: underline; }
     body { font-family: sans-serif; margin: 2rem; background: #000000; color: #ffffff; }
     h1 { color: #dddddd; }
-    input, button { display: block; margin: 1rem 0; padding: 0.5rem; width: 30%; max-width: 350px; border-radius: 9px; }
-    button { background-color: #ffffff; color: #000000; border: none; cursor: pointer; transition: background-color 0.3s ease; }
+    .form-group { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    label { display: flex; flex-direction: column; }
+    /* Poista numero-inputin nuolipainikkeet */
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type="number"] { -moz-appearance: textfield; padding: 0.5rem; border-radius: 9px; border: 1px solid #ffffff; background: #222222; color: #ffffff; width: 100px; }
+    .style-selector { display: flex; align-items: center; gap: 0.5rem; }
+    .style-selector label { display: flex; align-items: center; gap: 0.25rem; cursor: pointer; }
+    input[type="radio"] { accent-color: #888888; }
+    button { padding: 0.5rem 1rem; background-color: #ffffff; color: #000000; border: none; cursor: pointer; border-radius: 9px; transition: background-color 0.3s ease; }
     button:hover { background-color: #dddddd; }
     .results { margin-top: 1.5rem; background: #222222; padding: 1rem; border-radius: 9px; white-space: pre-wrap; }
     .price-tables { margin-top: 2rem; display: flex; flex-wrap: wrap; gap: 2rem; justify-content: center; }
-    .price-table { border-collapse: collapse; width: 100%; max-width: 300px; transform: scale(0.8); transform-origin: top left; }
+    .price-table { border-collapse: collapse; width: 100%; max-width: 600px; transform: scale(0.8); transform-origin: top left; }
     .price-table th, .price-table td { border: 1px solid #ffffff; padding: 0.5rem; text-align: center; }
     .price-table th { background: #333333; }
+    /* Korostetun solun hiekanväri ja tummanharmaa teksti */
+    .highlight { background-color: #f4e1a1 !important; color: #333333 !important; }
   </style>
 </head>
 <body>
@@ -25,17 +35,23 @@
     <a href="matot.html">Matot</a> |
     <a href="verhot.html">Verhot</a>
   </nav>
-  <h1>Mattojen hintalaskuri</h1>
+  <h1>Matot</h1>
 
-  <label>Leveys (cm):
-    <input type="number" id="width" />
-  </label>
+  <div class="form-group">
+    <label>Leveys (cm):
+      <input type="number" id="width" />
+    </label>
+    <label>Pituus (cm):
+      <input type="number" id="length" />
+    </label>
+    <div class="style-selector">
+      <label><input type="radio" name="style" value="Perus" checked /> Perus</label>
+      <label><input type="radio" name="style" value="Hapsut" /> Hapsut</label>
+      <label><input type="radio" name="style" value="Leveä kanttaus" /> Leveä kanttaus</label>
+    </div>
+  </div>
 
-  <label>Pituus (cm):
-    <input type="number" id="length" />
-  </label>
-
-  <button onclick="calculateRugPrice()">Laske hinta</button>
+  <button onclick="calculateRugPrice()">Näytä hinta</button>
 
   <div class="results" id="result"></div>
   <div class="price-tables" id="price-tables"></div>
@@ -45,7 +61,6 @@
     const heights = [];
     for (let h = 140; h <= 600; h += 20) heights.push(h);
 
-    // Perushinta-taulukko
     const basePrices = {
       140: {80:541,110:684,140:844,170:1002,200:1162,250:1427,300:1699,335:1855},
       160: {80:609,110:768,140:947,170:1125,200:1304,250:1601,300:1905,335:2080},
@@ -70,85 +85,66 @@
       540: {80:1901,110:2367,140:3835,170:6129,200:3751,250:4907,300:5819,335:6364},
       560: {80:1969,110:2451,140:3991,170:6406,200:3877,250:5081,300:6025,335:6589},
       580: {80:2037,110:2535,140:4147,170:6682,200:4003,250:5255,300:6231,335:6815},
-      600: {80:2105,110:2619,140:4303,170:6959,200:4129,250:5429,300:6437,335:7040},
+      600: {80:2105,110:2619,140:4303,170:6959,200:4129,250:5429,300:6437,335:7040}
     };
 
-    // Luo hintataulukot: Perus, Hapsut (+5%), Leveä kanttaus (+10%)  
     function computeTable(base, factor) {
-      const table = {};
-      for (const [h, row] of Object.entries(base)) {
-        table[h] = {};
-        for (const [w, p] of Object.entries(row)) {
-          table[h][w] = Math.round(p * factor);
-        }
-      }
-      return table;
+      const table = {}; for (const [h,row] of Object.entries(base)) { table[h] = {}; for (const [w,p] of Object.entries(row)) table[h][w] = Math.round(p*factor); } return table;
     }
 
-    const rugPrices = {
-      "Perus": basePrices,
-      "Hapsut": computeTable(basePrices, 1.05),
-      "Leveä kanttaus": computeTable(basePrices, 1.10)
-    };
+    const rugPrices = { "Perus": basePrices, "Hapsut": computeTable(basePrices,1.05), "Leveä kanttaus": computeTable(basePrices,1.10) };
 
-    function nextOrSame(val, list) {
-      return list.find(x => x >= val);
+    function nextOrSame(val,list){return list.find(x=>x>=val);}    
+
+    function calculateRugPrice(){
+      const inputW=parseFloat(document.getElementById('width').value);
+      const inputH=parseFloat(document.getElementById('length').value);
+      const resultDiv=document.getElementById('result');
+      if(isNaN(inputW)||isNaN(inputH)){resultDiv.textContent='Virheellinen syöte';return;}
+
+      const fW=nextOrSame(inputW,widths),uW=fW!==undefined?fW:widths[widths.length-1];
+      const fH=nextOrSame(inputH,heights),uH=fH!==undefined?fH:heights[heights.length-1];
+      let msg=''; if(fW===undefined) msg+=`Sopivaa leveyttä ${inputW} cm ei löytynyt, käytetään ${uW} cm.
+`;
+      if(fH===undefined) msg+=`Sopivaa pituutta ${inputH} cm ei löytynyt, käytetään ${uH} cm.
+`;
+
+      // Näytä kaikki hinnat
+      let output=msg+`Valittu koko: ${uW} x ${uH} cm
+
+`;
+      Object.entries(rugPrices).forEach(([style,table])=>{
+        const price=table[uH][uW]; output+=`${style}: €${price}
+`;
+      });
+      resultDiv.textContent=output;
+
+      // Korostus
+      document.querySelectorAll('.price-table td').forEach(td=>td.classList.remove('highlight'));
+      const selectedStyle=document.querySelector('input[name="style"]:checked').value;
+      const table=document.querySelector(`.price-table[data-style="${selectedStyle}"]`);
+      if(table){
+        const cell=table.querySelector(`td[data-width="${uW}"][data-length="${uH}"]`);
+        if(cell){ cell.classList.add('highlight'); }
+      }
     }
 
-    function calculateRugPrice() {
-      const width = parseFloat(document.getElementById('width').value);
-      const length = parseFloat(document.getElementById('length').value);
-      const resultDiv = document.getElementById('result');
-
-      if (isNaN(width) || isNaN(length)) {
-        resultDiv.textContent = 'Virheellinen syöte';
-        return;
-      }
-
-      const matchedWidth = nextOrSame(width, widths);
-      const matchedLength = nextOrSame(length, heights);
-
-      if (!matchedWidth || !matchedLength) {
-        resultDiv.textContent = 'Sopivaa kokoa ei löytynyt taulukosta.';
-        return;
-      }
-
-      let output = `Valittu koko: ${matchedWidth} x ${matchedLength} cm\n\n`;
-      for (const [style, table] of Object.entries(rugPrices)) {
-        const price = table[matchedLength]?.[matchedWidth];
-        output += `${style}: ${price ? '€' + price : 'Ei hintaa'}\n`;
-      }
-      resultDiv.textContent = output;
-    }
-
-    function generatePriceTables() {
-      const container = document.getElementById('price-tables');
-      container.innerHTML = '';
-      Object.entries(rugPrices).forEach(([style, table]) => {
-        const tbl = document.createElement('table');
-        tbl.className = 'price-table';
-        const caption = document.createElement('caption');
-        caption.textContent = style;
-        caption.style.marginBottom = '0.5rem'; caption.style.fontWeight = 'bold';
-        tbl.appendChild(caption);
-
-        const thead = document.createElement('thead');
-        const headRow = document.createElement('tr'); headRow.appendChild(document.createElement('th'));
-        widths.forEach(w => { const th = document.createElement('th'); th.textContent = w; headRow.appendChild(th); });
-        thead.appendChild(headRow); tbl.appendChild(thead);
-
-        const tbody = document.createElement('tbody');
-        heights.forEach(h => {
-          const row = document.createElement('tr');
-          const lh = document.createElement('th'); lh.textContent = h; row.appendChild(lh);
-          widths.forEach(w => { const td = document.createElement('td'); td.textContent = table[h]?.[w] || '-'; row.appendChild(td); });
-          tbody.appendChild(row);
-        });
-        tbl.appendChild(tbody); container.appendChild(tbl);
+    function generatePriceTables(){
+      const container=document.getElementById('price-tables'); container.innerHTML='';
+      Object.entries(rugPrices).forEach(([style,data])=>{
+        const tbl=document.createElement('table'); tbl.className='price-table'; tbl.setAttribute('data-style',style);
+        const cap=document.createElement('caption'); cap.textContent=style; cap.style.marginBottom='0.5rem'; cap.style.fontWeight='bold'; tbl.appendChild(cap);
+        const thead=document.createElement('thead'); const hr=document.createElement('tr'); hr.appendChild(document.createElement('th'));
+        widths.forEach(w=>{const th=document.createElement('th'); th.textContent=w; hr.appendChild(th);}); thead.appendChild(hr); tbl.appendChild(thead);
+        const tbody=document.createElement('tbody'); heights.forEach(h=>{
+          const tr=document.createElement('tr'); const th=document.createElement('th'); th.textContent=h; tr.appendChild(th);
+          widths.forEach(w=>{const td=document.createElement('td'); td.textContent=data[h][w]; td.setAttribute('data-width',w); td.setAttribute('data-length',h); tr.appendChild(td);});
+          tbody.appendChild(tr);
+        }); tbl.appendChild(tbody); container.appendChild(tbl);
       });
     }
 
-    document.addEventListener('DOMContentLoaded', generatePriceTables);
+    document.addEventListener('DOMContentLoaded',generatePriceTables);
   </script>
 </body>
 </html>
